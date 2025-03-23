@@ -1,0 +1,22 @@
+{
+    "TVT 1": {
+        "Day 1": {
+            "Game 1": "Day 1 Game 1",
+            "Game 2": "Day 1 Game 2"
+        },
+        "Day 2": {
+            "Game 1": "Day 2 Game 1",
+            "Game 2": "Day 2 Game 2"
+        }
+    },
+    "TVT 2": {
+        "Day 1": {
+            "Game 1": "Day 1 Game 1",
+            "Game 2": "Day 1 Game 2"
+        },
+        "Day 2": {
+            "Game 1": "Day 2 Game 1",
+            "Game 2": "Day 2 Game 2"
+        }
+    }
+}
