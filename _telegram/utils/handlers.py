@@ -2,7 +2,7 @@ import json
 
 from parser.parser import parse_missions
 
-from telegram.commands.admin import AdminPanel
+from _telegram.commands.admin import AdminPanel
 from core.config import SLOTS_FILE_PATH, TVT_DATES
 
 class Handlers():
@@ -26,12 +26,14 @@ class Handlers():
             self.bot.send_message(call.message.chat.id, text, parse_mode="Markdown")
 
     
-        # Admin
+        # === Admin callbacks ===
         if call.data == "update_parse_link":
             self.admin_panel.get_link(call.message)
         
         self.bot.answer_callback_query(call.id)
 
+
+    # === Should has admin condition ===
     def handle_json(self, message):
         file_info = self.bot.get_file(message.document.file_id)
 
