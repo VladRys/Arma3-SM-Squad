@@ -3,7 +3,7 @@ import json
 from parser.parser import parse_missions
 
 from _telegram.commands.admin import AdminPanel
-from core.config import SLOTS_FILE_PATH, TVT_DATES
+from core.config import *
 
 class Handlers():
     def __init__(self, bot, database):
@@ -35,22 +35,25 @@ class Handlers():
 
     # === Should has admin condition ===
     def handle_json(self, message):
-        file_info = self.bot.get_file(message.document.file_id)
+        if message.from_user.id not in ADMINS:
+            file_info = self.bot.get_file(message.document.file_id)
 
-        if not message.document.file_name.endswith(".json"):
-            self.bot.reply_to(message, "Отправленный файл не является JSON")
+            if not message.document.file_name.endswith(".json"):
+                self.bot.reply_to(message, "Отправленный файл не является JSON")
+                return
+
+            file_path = file_info.file_path
+            downloaded_file = self.bot.download_file(file_path)
+
+            with open(SLOTS_FILE_PATH, "wb") as file:
+                file.write(downloaded_file)
+
+            try:
+                with open(SLOTS_FILE_PATH, "r", encoding="utf-8") as json_file:
+                    data = json.load(json_file)
+
+                    self.bot.send_message(message.chat.id, f"Новый JSON файл: \n\n{data}")
+            except json.JSONDecodeError:
+                self.bot.reply_to(message, "Неверный JSON файл. Предыдущий был заменен на поврежденный/нечитаемый.")
+        else:
             return
-
-        file_path = file_info.file_path
-        downloaded_file = self.bot.download_file(file_path)
-
-        with open(SLOTS_FILE_PATH, "wb") as file:
-            file.write(downloaded_file)
-
-        try:
-            with open(SLOTS_FILE_PATH, "r", encoding="utf-8") as json_file:
-                data = json.load(json_file)
-
-                self.bot.send_message(message.chat.id, f"Новый JSON файл: \n\n{data}")
-        except json.JSONDecodeError:
-            self.bot.reply_to(message, "Неверный JSON файл. Предыдущий был заменен на поврежденный/нечитаемый.")
