@@ -1,9 +1,9 @@
 from telebot import types as t
-from database.db import BotDB as Database
+from database.db import Database
 from core.config import  ADMINS, DB_FILE_PATH, TVT_DATES
-from _telegram.commands.admin import AdminPanel
+from telegram.commands.admin import AdminPanel
 
-from parser.parser import parse_missions
+from parser.parser import Parser
 
 class SlashCommands():
     def __init__(self, bot):
@@ -12,20 +12,26 @@ class SlashCommands():
         
         self.admin_panel = AdminPanel(self.bot)
 
+        self.parser = Parser()
+
+        commands = [
+            t.BotCommand("start", "Начать работу с ботом"),
+            t.BotCommand("missions", "Актуальные миссии"),
+            t.BotCommand("slots", "Актулальные слоты")
+        ]
+
+        self.bot.set_my_commands(commands)
+
         self.bot.message_handler(commands=["start"])(self.start)
         self.bot.message_handler(commands=["missions"])(self.missions)
         self.bot.message_handler(commands=["slots"])(self.slots)
-
         self.bot.message_handler(commands=["admin"])(self.handle_admin)
     
     def handle_admin(self, message):
         self.admin_panel.admin_menu(message)
 
     def start(self, message):
-        user_id = ADMINS[0]
-        user_name = "vxrsdlx"
-
-        photo = open('_telegram/src/patch_mc.jpg', 'rb')
+        photo = open('telegram/src/patch_mc.jpg', 'rb')
 
         self.bot.send_photo(
             message.chat.id, photo, 
@@ -34,7 +40,7 @@ class SlashCommands():
 
     # === fixed dates ===
     def missions(self, message):
-        parsed_data = parse_missions()
+        parsed_data = self.parser.parse_missions()
         markup = t.InlineKeyboardMarkup()
         button = t.InlineKeyboardButton("Скачать Миссии", callback_data="download_missions")
         markup.add(button)

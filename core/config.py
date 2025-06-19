@@ -3,22 +3,25 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-TEST_MODE = 1
+TEST_MODE = True
+MODE = "PROD" if TEST_MODE else "TEST"
 
 TVT_DATES = ["Четверг, 20:00 МСК", "Пятница, 20:00 МСК", "Суббота, 16:00 МСК", "Суббота, 20:00 МСК"]
 
-# Files paths
+# === Paths ===
 SLOTS_FILE_PATH = os.getenv('SLOTS_FILE_PATH')
 DB_FILE_PATH = os.getenv('DB_FILE_PATH')
 
-# Telegram
+# === Telegram ===
 TOKEN_TELEGAM = os.getenv('TELEGRAM_TOKEN')
 TEST_TOKEN_TELEGRAM = os.getenv('TELEGRAM_TEST_TOKEN')
-ADMIN_IDS = os.getenv('ADMIN_IDS')
 
+MAIN_TOKEN_TELEGRAM = TEST_TOKEN_TELEGRAM if TEST_MODE else TOKEN_TELEGAM
+
+ADMIN_IDS = os.getenv('ADMIN_IDS')
 ADMINS = ADMIN_IDS.split()
 
-# Discord
+# === Discord ===
 TOKEN_DISCORD = os.getenv('TOKEN_DISCORD')
 EVERYONE_ROLE_ID = 1009471127812321331
 IMAGES_FOR_EMBED = [
@@ -55,5 +58,13 @@ IMAGES_FOR_EMBED = [
     "https://cdn.discordapp.com/attachments/960961865528250368/1288790131582701578/A4rmA_3_Screenshot_2024.png?ex=67254417&is=6723f297&hm=760cfc1e73d3efa5c78727d2d043ae1f575360a10e217ff17d7593063a391d14&",	
     "https://cdn.discordapp.com/attachments/960961865528250368/1288302215823364158/villagepatrol.png?ex=6724cf2f&is=67237daf&hm=0321ace0a9eb8341f2ec9ca662976f02d07ed887417458b73b4265f8018239d0&",
     "https://cdn.discordapp.com/attachments/960961865528250368/1282316059432718346/5135135.png?ex=6724c8e4&is=67237764&hm=9527e725ba337e4dfcab7cf84f13c859a37f0929500a69d418a256825c8b65f7&",
-    "https://cdn.discordapp.com/attachments/976906515309023252/1295755831941271663/333333111111.png?ex=6724e628&is=672394a8&hm=9308e3a78687de14ee445e542f90ca542a9c28380c0e1420665edf8dbce79b14&"
+    "https://cdn.discordapp.com/attachments/976906515309023252/1295755831941271663/333333111111.png?ex=6724e628&is=672394a8&hm=9308e3a78687de14ee445e542f90ca542a9c28380c0e1420665edf8dbce79b14&",
+    "https://cdn.discordapp.com/attachments/960961865528250368/1382412907912106085/Arma3_x64_2025-06-11_19-47-42.png?ex=68544a59&is=6852f8d9&hm=acb758202c54e25724abb99cecf80e99c056eb360d44f36bb8fbbc09811b7255",
+    "https://cdn.discordapp.com/attachments/960961865528250368/1381622637775814696/susrak.png?ex=6854b61a&is=6853649a&hm=c98007b18084dcc091a0bfd4cd5741b5687d5011f4f388dc9ea95916dc320a3b&",
+    "https://cdn.discordapp.com/attachments/960961865528250368/1381274559528964126/ArmA_3_Screenshot_2025.06.08_-_17.09.23.64.png?ex=6854c36d&is=685371ed&hm=f59cd9838057eac46233267d7f831324e1cc665f16c6efe49575bdf557e1b7c2&",
+    "https://cdn.discordapp.com/attachments/960961865528250368/1377084908345884682/Arma3_x64_2025-05-22_23-32-15_925.png?ex=6854aec3&is=68535d43&hm=80b66e88a1bb5a5fe3d6ec3903d93a18db058acae3bdb2894e1e8542611e0991&",
+    "https://cdn.discordapp.com/attachments/960961865528250368/1375260211820105748/mich1112.png?ex=6854a2e1&is=68535161&hm=423b9139e8d007a752b4c36b809a2909bd334f11161281ec2723f12fd203f9f0&",
+    "https://cdn.discordapp.com/attachments/960961865528250368/1374355592164020234/russin_fsb_syria.png?ex=6854a423&is=685352a3&hm=05a02ad16efbf843b10ea9b3d151bd99c517e32be2141c5410795c6d88ff23c9&",
+    "https://media.discordapp.net/attachments/960961865528250368/1369458045544960051/mountains.png?ex=68549f31&is=68534db1&hm=f56ef434bde544665dad5ee59c5273bee4abe3375243b7225f679af498d61cc8&=&format=webp&quality=lossless&width=1536&height=864",
+    "https://cdn.discordapp.com/attachments/960961865528250368/1367883242350579722/20250501204152_1.jpg?ex=6854d34b&is=685381cb&hm=34e07d271c07a75f0bac9dd7b5dbc6aaa5cdfc320fe1dfb74d37789193459002&"
 ]
