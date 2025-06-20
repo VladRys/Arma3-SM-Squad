@@ -176,7 +176,6 @@ cython_debug/
 
 
 database/
-discord/
 core/.env
 parser/stat_parser.py
 

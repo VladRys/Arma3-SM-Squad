@@ -5,8 +5,7 @@ from logs.setup_logs import setup_logger
 
 class MainTelegram():
     def __init__(self):
-        self.config = config
-        self.bot = telebot.TeleBot(self.config.MAIN_TOKEN_TELEGRAM)
+        self.bot = telebot.TeleBot(config.MAIN_TOKEN_TELEGRAM)
 
         self.logs = setup_logger()
         self.utils = utils.Utils()
