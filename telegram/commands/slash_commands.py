@@ -65,13 +65,21 @@ class SlashCommands():
         day = 1
         game = 1 
         for i, d in enumerate(TVT_DATES):
-            if i == 1: 
-                message_text += (f"{d}\n|\n1 ИГРА: {slots[f"TVT {mode+1}"][f"Day {day}"][f"Game {game}"]}\n2 ИГРА: {slots[f"TVT {mode+1}"][f"Day {day}"][f"Game {game+1}"]}\n|\n")
+            if i == 1:
+                m = mode + 1
+                d_ = day
             elif i == 3:
-                message_text += (f"{d}\n|\n1 ИГРА: {slots[f"TVT {mode+1}"][f"Day {day+1}"][f"Game {game}"]}\n2 ИГРА: {slots[f"TVT {mode+1}"][f"Day {day+1}"][f"Game {game+1}"]}\n")
+                m = mode + 1
+                d_ = day + 1
             elif i == 2:
-                message_text += (f"{d}\n|\n1 ИГРА: {slots[f"TVT {mode}"][f"Day {day+1}"][f"Game {game}"]}\n2 ИГРА: {slots[f"TVT {mode}"][f"Day {day+1}"][f"Game {game+1}"]}\n|\n")
+                m = mode
+                d_ = day + 1
             else:
-                message_text += (f"{d}\n|\n1 ИГРА: {slots[f"TVT {mode}"][f"Day {day}"][f"Game {game}"]}\n2 ИГРА: {slots[f"TVT {mode}"][f"Day {day}"][f"Game {game+1}"]}\n|\n")
+                m = mode
+                d_ = day
+
+            g1 = slots[f"TVT {m}"][f"Day {d_}"][f"Game {game}"]
+            g2 = slots[f"TVT {m}"][f"Day {d_}"][f"Game {game+1}"]
+            message_text += f"{d}\n|\n1 ИГРА: {g1}\n2 ИГРА: {g2}\n|\n"
 
         self.bot.send_message(message.chat.id, message_text)

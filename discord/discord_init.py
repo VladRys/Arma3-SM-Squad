@@ -17,7 +17,7 @@ class MainDiscord:
 
     def main(self):
         print("[+++] Discord")       
-        initial_extensions = []
+        initial_extensions = ["discord.commands.slash-commands"]
 
         for extension in initial_extensions:
             self.bot.load_extension(extension)
