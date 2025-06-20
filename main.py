@@ -1,11 +1,12 @@
-import subprocess
+from multiprocessing import Process
 from telegram import telegram_init as telegram
-from discord import discord_init as discord
+from discord.discord_init import MainDiscord
 
 
 # Run
 if __name__ == "__main__":
-    discord = subprocess.Popen(["python", "discord/discord_init.py"])
+    discord = Process(target=MainDiscord)
+    discord.start()
     telegram = telegram.MainTelegram()
 
-    discord.wait()
+    discord.join()
