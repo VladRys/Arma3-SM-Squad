@@ -11,7 +11,7 @@ class Parser():
         self.logs = setup_logger()
 
 
-    def fetch_html(url):
+    def fetch_html(self, url):
         response = requests.get(url)
         return BS(response.content, "html.parser")
 
