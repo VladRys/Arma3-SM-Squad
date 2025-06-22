@@ -23,6 +23,6 @@ def unload_error_logs(bot, msg):
     with open("logs/error.log", "rb") as f:
         lines = f.readlines()
         if lines:
-            bot.send_message(msg.chat.id, f"🛠️ Последняя ошибка из логов:\n\n {lines[-1].decode("utf-8").strip()}", parse_mode='Markdown')
+            bot.send_message(msg.chat.id, f"🛠️ Последняя ошибка из логов:\n\n {lines[-1].decode('utf-8').strip()}", parse_mode='Markdown')
             f.seek(0)
             bot.send_document(msg.chat.id, f)

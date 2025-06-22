@@ -1,5 +1,7 @@
 from telebot import types as t
 from database.db import Database
+from database.slots import SlotStorage
+
 from core.config import  ADMINS, DB_FILE_PATH, TVT_DATES
 from telegram.commands.admin import AdminPanel
 
@@ -13,6 +15,8 @@ class SlashCommands():
         self.admin_panel = AdminPanel(self.bot)
 
         self.parser = Parser()
+        
+        self.slots = SlotStorage()
 
         commands = [
             t.BotCommand("start", "Начать работу с ботом"),
@@ -24,7 +28,7 @@ class SlashCommands():
 
         self.bot.message_handler(commands=["start"])(self.start)
         self.bot.message_handler(commands=["missions"])(self.missions)
-        self.bot.message_handler(commands=["slots"])(self.slots)
+        self.bot.message_handler(commands=["slots"])(self.show_slots)
         self.bot.message_handler(commands=["admin"])(self.handle_admin)
     
     def handle_admin(self, message):
@@ -57,8 +61,8 @@ class SlashCommands():
             parse_mode="Markdown"
         )
     
-    def slots(self, message):
-        slots = self.db.get_slots()
+    def show_slots(self, message):
+        slots = self.slots.load_data()
 
         message_text = " "
         mode = 1
