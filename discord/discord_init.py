@@ -21,8 +21,9 @@ class MainDiscord:
 
     def main(self):
         print("[+++] Discord")
-        initial_extensions = ["discord.commands.slash-commands",
-                              "discord.events.event-handler",]
+        initial_extensions = ["discord.commands.slash_commands",
+                              "discord.events.event_handler",
+                              "discord.tickets.ticket",]
 
         for extension in initial_extensions:
             self.bot.load_extension(extension)
