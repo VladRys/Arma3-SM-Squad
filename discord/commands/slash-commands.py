@@ -4,6 +4,7 @@ from logs.setup_logs import setup_logger
 from core.config import *
 
 from database.db import Database
+from database.slots import SlotStorage
 
 from parser.parser import Parser
 
@@ -15,6 +16,8 @@ class Commands(commands.Cog):
         self.l=setup_logger()
         self.parser = Parser()
         self.db = Database(DB_FILE_PATH)
+        self.slots = SlotStorage()
+        
         self.l.info("[DISCORD] Commands cog loaded successfully.")
 
     
@@ -65,7 +68,7 @@ class Commands(commands.Cog):
         )
         slots_embed = disnake.Embed(
             title="Слоты на TVT",
-            description=f"Список слотов на ближайшие TVT игры:\n\n{self.db.get_slots_text()}",
+            description=f"Список слотов на ближайшие TVT игры:\n\n{self.slots.get_slots_text()}",
             color=EMBED_COLOR
         )
         slots_embed.set_author(

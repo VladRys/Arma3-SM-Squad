@@ -175,7 +175,10 @@ cython_debug/
 .pypirc
 
 
-database/
+database/db.db
+database/slots.json
+
+
 core/.env
 parser/stat_parser.py
 
