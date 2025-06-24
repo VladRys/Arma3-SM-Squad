@@ -1,5 +1,5 @@
 from multiprocessing import Process
-from telegram import telegram_init as telegram
+from telegram.telegram_init import MainTelegram
 from discord.discord_init import MainDiscord
 
 
@@ -7,6 +7,9 @@ from discord.discord_init import MainDiscord
 if __name__ == "__main__":
     discord = Process(target=MainDiscord)
     discord.start()
-    telegram = telegram.MainTelegram()
+
+    telegram = Process(target=MainTelegram)
+    telegram.start()
 
     discord.join()
+    telegram.join()
