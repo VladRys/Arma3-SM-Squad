@@ -2,7 +2,8 @@ import disnake
 from disnake.ui import View, Button, Select, TextInput, Modal
 from disnake import ButtonStyle, Interaction
 
-from core.config import EMBED_COLOR, END_OF_TICKET_CHANNEL_ID
+from core.config import EMBED_COLOR, END_OF_TICKET_CHANNEL_ID, AGE_LIMIT
+from core.exceptions import AgeVerifException
 
 class TicketView(View):
     def __init__(self, bot):
@@ -28,9 +29,6 @@ class TicketModalArma3(Modal):
         self.bot = bot
 
     async def callback(self, interaction: Interaction):
-
-        
-
         nickname = interaction.author.display_name
 
         callsign = interaction.text_values.get("callsign", "—")
@@ -38,6 +36,13 @@ class TicketModalArma3(Modal):
         hours = interaction.text_values.get("hours", "—")
         experience = interaction.text_values.get("experience", "—")
         adequacy = interaction.text_values.get("adequacy", "—")
+
+        if age < AGE_LIMIT:
+            await interaction.response.send_message("Вы не проходите по возрасту.", ephemeral=True)
+            await self.bot.get_channel(END_OF_TICKET_CHANNEL_ID).send(content=f"<@265888314781990914> <@1326943255400808518>", embed = disnake.Embed(title="AgeVerifException", description=f"{nickname} не прошел по возрасту: {age}"))
+            
+            raise AgeVerifException
+
 
         embed_text = (
             f"**Дискорд:** {nickname}\n"

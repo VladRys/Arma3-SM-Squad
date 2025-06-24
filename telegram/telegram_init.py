@@ -18,7 +18,7 @@ class MainTelegram():
             print("[+++] Telegram")
             self.logs.info(f"Bot online in {config.MODE} mode")
             self.bot.polling(config.MAIN_TOKEN_TELEGRAM)
-            
+          
         except Exception as e:
             print("[ERROR]", e)
             self.logs.error(f"[ERROR] while bot online: {e}")
