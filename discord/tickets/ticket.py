@@ -20,7 +20,7 @@ class TicketSystem(commands.Cog):
             color=EMBED_COLOR
         )
 
-        await self.bot.get_channel(BOT_CHANNEL_ID).send(
+        await self.bot.get_channel(TICKET_CHANNEL_ID).send(
             embed=embed,
             view=view
         )

@@ -2,7 +2,7 @@ import disnake
 from disnake.ui import View, Button, Select, TextInput, Modal
 from disnake import ButtonStyle, Interaction
 
-from core.config import EMBED_COLOR, END_OF_TICKET_CHANNEL_ID, AGE_LIMIT
+from core.config import EMBED_COLOR, END_OF_TICKET_CHANNEL_ID, AGE_LIMIT, TEST_MODE, MODERATOR_PING
 from core.exceptions import AgeVerifException
 
 class TicketView(View):
@@ -19,15 +19,16 @@ class TicketView(View):
 class TicketModalArma3(Modal):
     def __init__(self, bot):
         components = [
-            TextInput(label="Ваш желаемый позывной:", placeholder=None, required=True, custom_id="callsign"),
-            TextInput(label="Ваш возраст:", placeholder=None, required=False, custom_id="age"),
-            TextInput(label="Кол-во часов?", placeholder=None, required=True, custom_id="hours"),
+            TextInput(label="Ваш желаемый позывной:", placeholder="Короткий, простой, без цифр", required=True, custom_id="callsign"),
+            TextInput(label="Ваш возраст:", placeholder="Исключительно цифры", required=True, custom_id="age"),
+            TextInput(label="Кол-во часов?", placeholder="Исключительно число", required=True, custom_id="hours"),
             TextInput(label="Имеется ли опыт в твт/тве?", placeholder="Если да, то на каких проектах/серверах", required=True, custom_id="experience"),
             TextInput(label="На сколько оцениваете свою адекватность?", placeholder="от 0 до 10", required=True, custom_id="adequacy"),
         ]
         super().__init__(title="Подать заявку", components=components)
         self.bot = bot
 
+    # === Sending data to channel ===
     async def callback(self, interaction: Interaction):
         nickname = interaction.author.display_name
 
@@ -36,14 +37,22 @@ class TicketModalArma3(Modal):
         hours = interaction.text_values.get("hours", "—")
         experience = interaction.text_values.get("experience", "—")
         adequacy = interaction.text_values.get("adequacy", "—")
-
-        if age < AGE_LIMIT:
-            await interaction.response.send_message("Вы не проходите по возрасту.", ephemeral=True)
-            await self.bot.get_channel(END_OF_TICKET_CHANNEL_ID).send(content=f"<@265888314781990914> <@1326943255400808518>", embed = disnake.Embed(title="AgeVerifException", description=f"{nickname} не прошел по возрасту: {age}"))
+        try:
+            if int(age) < AGE_LIMIT:
+                raise AgeVerifException(f"Не прошел по возрасту: {age}.", nickname)
             
-            raise AgeVerifException
-
-
+        except AgeVerifException:
+            await interaction.response.send_message("Вы не проходите по возрасту.", ephemeral=True)
+            return await self.bot.get_channel(END_OF_TICKET_CHANNEL_ID).send(
+                content=None if TEST_MODE else MODERATOR_PING, 
+                embed = disnake.Embed(
+                    title="AgeVerifException", description=f"{nickname} не прошел по возрасту: {age}")\
+                    )
+        
+        except ValueError:
+            return await interaction.response.send_message("Пожалуйста, заполните анкету заново и введите корректный возраст.", ephemeral=True)
+            
+        
         embed_text = (
             f"**Дискорд:** {nickname}\n"
             f"**Позывной:** {callsign}\n"
@@ -60,7 +69,7 @@ class TicketModalArma3(Modal):
 
         await self.bot.get_channel(END_OF_TICKET_CHANNEL_ID).send(
             embed=embed,
-            content=f"<@265888314781990914> <@1326943255400808518>",
+            content=None if TEST_MODE else MODERATOR_PING
         )
 
         await interaction.response.send_message("Ваша заявка успешно создана! Ожидайте ответа от представителей отряда.\n\nПо любым вопросам обращаться к офицерам отряда указанным в сообщении выше.", ephemeral=True)

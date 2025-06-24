@@ -20,7 +20,6 @@ class Commands(commands.Cog):
         
         self.l.info("[DISCORD] Commands cog loaded successfully.")
 
-    
 
     @commands.slash_command(name="помощь", description="Показать список доступных команд")
     async def help(self, inter: disnake.ApplicationCommandInteraction):
