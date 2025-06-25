@@ -4,8 +4,11 @@ from database.slots import SlotStorage
 
 from core.config import  ADMINS, DB_FILE_PATH, TVT_DATES
 from telegram.commands.admin import AdminPanel
+from telegram.utils.keyboards import CustomInlineKeyboards
 
 from parser.parser import Parser
+
+from logs.setup_logs import unload_logs, unload_error_logs
 
 class SlashCommands():
     def __init__(self, bot):
@@ -17,6 +20,8 @@ class SlashCommands():
         self.parser = Parser()
         
         self.slots = SlotStorage()
+
+        self.custom_markups = CustomInlineKeyboards(self.bot)
 
         commands = [
             t.BotCommand("start", "Начать работу с ботом"),
@@ -30,6 +35,7 @@ class SlashCommands():
         self.bot.message_handler(commands=["missions"])(self.missions)
         self.bot.message_handler(commands=["slots"])(self.show_slots)
         self.bot.message_handler(commands=["admin"])(self.handle_admin)
+        self.bot.message_handler(commands=["logs"])(self.logs)
     
     def handle_admin(self, message):
         self.admin_panel.admin_menu(message)
@@ -87,3 +93,9 @@ class SlashCommands():
             message_text += f"{d}\n|\n1 ИГРА: {g1}\n2 ИГРА: {g2}\n|\n"
 
         self.bot.send_message(message.chat.id, message_text)
+
+    def logs(self, message):
+        unload_logs(self.bot, message)
+        unload_error_logs(self.bot, message)
+        
+        

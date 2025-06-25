@@ -2,7 +2,9 @@
 from telebot import types as t
 from core.config import ADMINS
 
-from logs.setup_logs import setup_logger
+from logs.setup_logs import *
+from telegram.utils.keyboards import CustomInlineKeyboards
+
 
 class AdminPanel():
 
@@ -10,6 +12,8 @@ class AdminPanel():
         self.bot = bot
 
         self.l = setup_logger()
+        
+        self.custom_markups = CustomInlineKeyboards(self.bot)
 
     def is_admin(self, user_id, message):
         if str(user_id) in ADMINS:
@@ -41,16 +45,12 @@ class AdminPanel():
                 link_file.write(link)
 
             self.bot.send_message(message.chat.id, f"Ссылка: {link} была успешно сохранена")
+            
             self.l.info(f"[LINK] Saved Link: {link}")
         except FileNotFoundError:
-            error_markup = t.InlineKeyboardMarkup(row_width=1)
-            error_markup.add(t.InlineKeyboardButton(text='🔨 Выгрузить логи', callback_data='unload_error_logs'))
-
-            self.bot.send_message(message.chat.id, 'link.txt файл не был найден! Посмотреть ошибку детальнее можно выгрузив логи.', parse_mode='Markdown')
+            self.custom_markups.get_error_markup(message.chat.id, "link.txt файл не был найден! Посмотреть ошибку детальнее можно выгрузив логи.")
             print("[LINK ERROR] Link txt file was not found")
-        except Exception as e:
-            error_markup = t.InlineKeyboardMarkup(row_width=1)
-            error_markup.add(t.InlineKeyboardButton(text='🔨 Выгрузить логи', callback_data='unload_error_logs'))
 
-            self.bot.send_message(message.chat.id, 'Ошибка при сохранении ссылки расписания! Посмотреть ошибку детальнее можно выгрузив логи.', parse_mode='Markdown')
+        except Exception as e:
+            self.custom_markups.get_error_markup(message.chat.id, 'Ошибка при сохранении ссылки расписания! Посмотреть ошибку детальнее можно выгрузив логи.')
             self.l.error(f"[LINK ERROR] {e}")
