@@ -1,6 +1,6 @@
 import json
 
-from parser.parser import Parser
+from parser.parser import Parser, SiteParser, StatParser, StatMissionsParser
 
 from telebot import types as t
 
@@ -17,7 +17,7 @@ class Handlers():
         
         self.l = setup_logger()
 
-        self.parser = Parser()
+        self.parser = Parser(SiteParser, StatParser, StatMissionsParser)
 
         self.user_state = {}
 

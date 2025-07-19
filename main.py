@@ -7,7 +7,7 @@ from discord.discord_init import MainDiscord
 if __name__ == "__main__":
     discord = Process(target=MainDiscord)
     discord.start()
-
+        
     telegram = Process(target=MainTelegram)
     telegram.start()
 

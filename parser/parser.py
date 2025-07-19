@@ -2,11 +2,12 @@ import requests
 import re
 from bs4 import BeautifulSoup as BS
 
+from parser.stat_parser import StatParser, StatMissionsParser
 
 from logs.setup_logs import setup_logger
 
 
-class Parser():
+class SiteParser():
     def __init__(self):
         self.logs = setup_logger()
 
@@ -43,3 +44,8 @@ class Parser():
     def clean_text(self, text_list):
         return [re.sub(r"\n\s*\n+", "\n", text.strip()) for text in text_list]
 
+class Parser(SiteParser, StatParser):
+    def __init__(self, missions_list: SiteParser, stats: StatParser, missions_stats: StatMissionsParser):
+        super().__init__()
+        self.stats = stats(missions_stats)
+        self.missions_stats = StatMissionsParser()

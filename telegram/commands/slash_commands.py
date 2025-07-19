@@ -5,7 +5,7 @@ from database.slots import SlotStorage
 from core.config import  ADMINS, DB_FILE_PATH, TVT_DATES
 from telegram.commands.admin import AdminPanel
 
-from parser.parser import Parser
+from parser.parser import Parser, SiteParser, StatParser, StatMissionsParser
 
 class SlashCommands():
     def __init__(self, bot):
@@ -14,14 +14,16 @@ class SlashCommands():
         
         self.admin_panel = AdminPanel(self.bot)
 
-        self.parser = Parser()
+        self.parser = Parser(SiteParser, StatParser, StatMissionsParser)
         
         self.slots = SlotStorage()
 
         commands = [
             t.BotCommand("start", "Начать работу с ботом"),
             t.BotCommand("missions", "Актуальные миссии"),
-            t.BotCommand("slots", "Актулальные слоты")
+            t.BotCommand("slots", "Актулальные слоты"),
+            t.BotCommand("admin", "Админ панель"),
+            t.BotCommand("mission_stat", "Топ игроков и отрядов на последней миссии"),
         ]
 
         self.bot.set_my_commands(commands)
@@ -30,6 +32,8 @@ class SlashCommands():
         self.bot.message_handler(commands=["missions"])(self.missions)
         self.bot.message_handler(commands=["slots"])(self.show_slots)
         self.bot.message_handler(commands=["admin"])(self.handle_admin)
+        self.bot.message_handler(commands=["mission_stat"])(self.top_mission_stat)
+
     
     def handle_admin(self, message):
         self.admin_panel.admin_menu(message)
@@ -41,6 +45,34 @@ class SlashCommands():
             message.chat.id, photo, 
             caption=f"Вас приветствует виртуальный отряд СМЕРШ.\n\nВиртуальный отряд спец.назначения СМЕРШ был создан летом 2020-го года в качестве клана на базе игры H&G, где и базировался до марта 2023-го года. Закрытие Героев вынудили на тот момент еще клан искать новую площадку для своей игры. Этой игрой стала ARMA 3. За последние полтора года игры в неё клан посетил несколько крупных TVT и TVE проектов. В данный момент мы принимаем непосредственное участие в играх на проекте Red Bear, в его TVT1 и TVT2 режимах.\n\nДвигаемся в направлении более серьезной тактической игры и имеем дружное сообщество, которое радо и открыто к новичкам. Ведем открытый набор в наши ряды.\n\nРесурсы нашего отряда: \nЮтуб канал (☠️) - https://www.youtube.com/@SMERSH_HG\nДискорд - https://discord.gg/hXUSEWWxwW\nТимспик - SMERSH.TS3.RE\nТакже мы имеем закрытый телеграмм чат, доступ в который можно получить после одобрения заявки на вступление.",
         )
+
+    # === Top Mission Stat ===
+    def top_mission_stat(self, message):
+        stat = self.parser.missions_stats.parse_top_mission_stat(
+            "RBC_200_Whisky_War_v5", squads=True, players=True
+        )
+        formatted_stat = self.parser.missions_stats.format_stat_row(stat)
+        rows = formatted_stat.strip().split("\n")
+
+        for i, row in enumerate(rows):
+            try:
+                name_part = row.split("|")[1].strip().split(" - ")[0]
+                if not name_part.startswith("["):
+                    rows.insert(i, "")
+                    rows.insert(i, "*Top Squads*:") 
+                    rows.insert(i, "")
+                    break
+            except IndexError:
+                continue
+
+        formatted_stat = "\n".join(rows)
+
+        self.bot.send_message(
+            message.chat.id,
+            f"*Топ игроков и отрядов по миссии RBC_200_Whisky_War_v5:*\n\n*Top Players:*\n\n{formatted_stat}",
+            parse_mode="Markdown"
+        )
+
 
     # === fixed dates ===
     def missions(self, message):
