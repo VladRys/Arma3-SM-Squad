@@ -1,4 +1,5 @@
 import telebot 
+import time
 
 import time
 
@@ -18,7 +19,7 @@ class MainTelegram():
         try:
             self.utils.load_ext(self.bot)    
             print("[+++] Telegram")
-            self.logs.info(f"Bot online in {config.MODE} mode")
+            self.logs.info(f"[TELEGRAM] Online in {config.MODE} mode")
             while True:
                 try:
                     self.bot.polling(config.MAIN_TOKEN_TELEGRAM)

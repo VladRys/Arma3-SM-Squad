@@ -19,6 +19,21 @@ def setup_logger():
 
     return logger
 
+
+def unload_logs(bot, msg):
+    with open("logs/info.log", "rb") as f:
+        lines = f.readlines()
+        if lines:
+            last_10_lines = lines[-10:]
+            decoded_lines = [line.decode('utf-8').strip() for line in last_10_lines]
+            
+            text = '\n'.join(decoded_lines)
+            
+            bot.send_message(msg.chat.id,f"🛠️ Последние 10 записей в логах:\n\n{text}",)
+            f.seek(0)
+            bot.send_document(msg.chat.id, f)
+
+
 def unload_error_logs(bot, msg):
     with open("logs/error.log", "rb") as f:
         lines = f.readlines()

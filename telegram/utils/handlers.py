@@ -7,6 +7,8 @@ from telebot import types as t
 from telegram.commands.admin import AdminPanel
 from core.config import *
 
+from utils.keyboards import CustomInlineKeyboards
+
 from logs.setup_logs import setup_logger, unload_error_logs
 
 class Handlers():
@@ -20,6 +22,8 @@ class Handlers():
         self.parser = Parser(SiteParser, StatParser, StatMissionsParser)
 
         self.user_state = {}
+
+        self.custom_makups = CustomInlineKeyboards(self.bot)
 
         self.bot.message_handler(func=lambda m: self.user_state.get(m.from_user.id) == 'waiting_json', content_types=['document'])(self.handle_json)
         
@@ -75,16 +79,10 @@ class Handlers():
                     self.l.info("[JSON] New json file was saved!")
                     self.user_state[message.from_user.id] = None
             except Exception as e:
-                error_markup = t.InlineKeyboardMarkup(row_width=1)
-                error_markup.add(t.InlineKeyboardButton(text='🔨 Выгрузить логи', callback_data='unload_error_logs'))
-
-                self.bot.send_message(message.chat.id, 'Ошибка во время получения JSON слотов. Посмотреть ошибку детальнее можно выгрузив логи.', parse_mode='Markdown')
+                self.custom_makups.get_error_markup(message.chat.id, 'Ошибка во время получения JSON слотов. Посмотреть ошибку детальнее можно выгрузив логи.')
                 self.l.error(f"[ERROR] while handling new json: {e}")
             except json.JSONDecodeError:
                 self.bot.reply_to(message, "Неверный JSON файл. Предыдущий был заменен на поврежденный/нечитаемый.")
                 self.l.error("[ERROR] Json file was corrupted and changed by previous")
         else:
             return
-        
-    def commands_hanlder(self):
-        pass
