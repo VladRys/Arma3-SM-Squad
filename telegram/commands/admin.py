@@ -27,6 +27,7 @@ class AdminPanel():
 
         admin_markup.add(t.InlineKeyboardButton("Обновить ссылку на расписание", callback_data="update_parse_link"))
         admin_markup.add(t.InlineKeyboardButton("Обновить слоты (JSON)", callback_data="update_slots_json"))
+        admin_markup.add(t.InlineKeyboardButton("Обновить миссии для статы", callback_data="update_ocap_missions"))
         admin_markup.add(t.InlineKeyboardButton(text='🔨 Выгрузить логи', callback_data='unload_error_logs'))
         user_id = message.from_user.id
         if self.is_admin(user_id, message):

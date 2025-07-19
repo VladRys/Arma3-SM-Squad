@@ -6,7 +6,7 @@ from core.config import  ADMINS, DB_FILE_PATH, TVT_DATES
 from telegram.commands.admin import AdminPanel
 from telegram.utils.keyboards import CustomInlineKeyboards
 
-from parser.parser import Parser, SiteParser, StatParser, StatMissionsParser
+from parser.parser import Parser, SiteParser, StatParser, StatMissionsParser, StatFormatter, MissionDownloader
 
 from logs.setup_logs import unload_logs, unload_error_logs
 
@@ -17,7 +17,7 @@ class SlashCommands():
         
         self.admin_panel = AdminPanel(self.bot)
 
-        self.parser = Parser(SiteParser, StatParser, StatMissionsParser)
+        self.parser = Parser(SiteParser, StatParser, StatMissionsParser, StatFormatter, MissionDownloader)
         
         self.slots = SlotStorage()
 
@@ -54,10 +54,10 @@ class SlashCommands():
 
     # === Top Mission Stat ===
     def top_mission_stat(self, message):
-        stat = self.parser.missions_stats.parse_top_mission_stat(
+        stat = self.parser.stats.missions_stats.parse_top_mission_stat(
             "RBC_200_Whisky_War_v5", squads=True, players=True
         )
-        formatted_stat = self.parser.missions_stats.format_stat_row(stat)
+        formatted_stat = self.parser.stats.stat_formatter.format_stat_row(stat)
         rows = formatted_stat.strip().split("\n")
 
         for i, row in enumerate(rows):

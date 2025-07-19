@@ -1,13 +1,13 @@
 import json
 
-from parser.parser import Parser, SiteParser, StatParser, StatMissionsParser
+from parser.parser import Parser, SiteParser, StatParser, StatMissionsParser, StatFormatter, MissionDownloader
 
 from telebot import types as t
 
 from telegram.commands.admin import AdminPanel
 from core.config import *
 
-from utils.keyboards import CustomInlineKeyboards
+# from telegram.utils.keyboards import CustomInlineKeyboards
 
 from logs.setup_logs import setup_logger, unload_error_logs
 
@@ -19,11 +19,12 @@ class Handlers():
         
         self.l = setup_logger()
 
-        self.parser = Parser(SiteParser, StatParser, StatMissionsParser)
+        self.parser = Parser(SiteParser, StatParser, StatMissionsParser, StatFormatter, MissionDownloader)
+        
 
         self.user_state = {}
 
-        self.custom_makups = CustomInlineKeyboards(self.bot)
+        # self.custom_makups = CustomInlineKeyboards(self.bot)
 
         self.bot.message_handler(func=lambda m: self.user_state.get(m.from_user.id) == 'waiting_json', content_types=['document'])(self.handle_json)
         
@@ -52,6 +53,9 @@ class Handlers():
         if call.data == "update_slots_json":
             self.user_state[call.from_user.id] = 'waiting_json'
             msg = self.bot.send_message(call.message.chat.id, 'Отправь json слотов', parse_mode='Markdown')
+
+        if call.data == "update_ocap_missions":
+            self.parser.stats.missions_stats.mission_downloader.update_missions()            
 
         self.bot.answer_callback_query(call.id)
 
