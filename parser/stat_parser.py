@@ -1,6 +1,8 @@
 from bs4 import BeautifulSoup
 import requests
 from urllib.parse import urlparse, parse_qs
+from selenium import webdriver
+from collections import defaultdict
 
 from logs.setup_logs import setup_logger
 
@@ -10,6 +12,7 @@ from core.config import STAT_SITE_URL
 class MissionDownloader:
     def __init__(self):
         self.logs = setup_logger()
+        
 
     def download_mission(self, url: str):
         headers = {
@@ -18,7 +21,6 @@ class MissionDownloader:
 
         response = requests.get(url, headers=headers)
 
-        from selenium import webdriver
 
         driver = webdriver.Chrome()
         driver.get(url)
@@ -50,7 +52,7 @@ class MissionDownloader:
 class StatMissionsParser:
     def __init__(self, mission_downloader: MissionDownloader):
         self.mission_downloader = mission_downloader
-
+  
     def parse_top_mission_stat(self, mission_index: int = 0, squads: bool = False, players: bool = False) -> list:
         
         missions_urls = self.mission_downloader.get_missions()

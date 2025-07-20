@@ -7,6 +7,7 @@ from core.config import  ADMINS, DB_FILE_PATH, TVT_DATES
 from core.exceptions import MissionIndexException
 from telegram.commands.admin import AdminPanel
 from telegram.utils.keyboards import CustomInlineKeyboards
+from telegram.utils.donate import Donate
 
 from parser.parser import Parser, SiteParser, StatParser, StatMissionsParser, StatFormatter
 
@@ -22,6 +23,8 @@ class SlashCommands():
         self.parser = Parser(SiteParser, StatParser, StatMissionsParser, StatFormatter)
         
         self.slots = SlotStorage()
+        
+        self.donate = Donate(self.bot)
 
         self.custom_markups = CustomInlineKeyboards(self.bot)
 
@@ -30,6 +33,7 @@ class SlashCommands():
             t.BotCommand("missions", "Актуальные миссии"),
             t.BotCommand("slots", "Актулальные слоты"),
             t.BotCommand("admin", "Админ панель"),
+            t.BotCommand("donate", "Кинуть копейку на хост"),
             t.BotCommand("mission_stat", "Топ игроков и отрядов на последней миссии"),
         ]
 
@@ -40,6 +44,8 @@ class SlashCommands():
         self.bot.message_handler(commands=["slots"])(self.show_slots)
         self.bot.message_handler(commands=["admin"])(self.handle_admin)
         self.bot.message_handler(commands=["mission_stat"])(self.top_mission_stat)
+        self.bot.message_handler(commands=["donate"])(self.donate_pls)
+
 
         self.bot.message_handler(commands=["logs"])(self.logs)
     
@@ -54,6 +60,10 @@ class SlashCommands():
             caption=f"Вас приветствует виртуальный отряд СМЕРШ.\n\nВиртуальный отряд спец.назначения СМЕРШ был создан летом 2020-го года в качестве клана на базе игры H&G, где и базировался до марта 2023-го года. Закрытие Героев вынудили на тот момент еще клан искать новую площадку для своей игры. Этой игрой стала ARMA 3. За последние полтора года игры в неё клан посетил несколько крупных TVT и TVE проектов. В данный момент мы принимаем непосредственное участие в играх на проекте Red Bear, в его TVT1 и TVT2 режимах.\n\nДвигаемся в направлении более серьезной тактической игры и имеем дружное сообщество, которое радо и открыто к новичкам. Ведем открытый набор в наши ряды.\n\nРесурсы нашего отряда: \nЮтуб канал (☠️) - https://www.youtube.com/@SMERSH_HG\nДискорд - https://discord.gg/hXUSEWWxwW\nТимспик - SMERSH.TS3.RE\nТакже мы имеем закрытый телеграмм чат, доступ в который можно получить после одобрения заявки на вступление.",
         )
 
+    def donate_pls(self, message):
+        self.donate.send_invoice_message(message)
+        
+
     # === Top Mission Stat ===
     def top_mission_stat(self, message):
         if len(message.text.split()) > 1:
@@ -66,31 +76,35 @@ class SlashCommands():
                 raise MissionIndexException("Mission index must be an integer", 0)
         else:
             mission_index = 0
+        
+        try:
+            msg = self.bot.send_message(message.chat.id, 'Получаю статистику..... (это может занять время)', parse_mode='Markdown')
+            stat, mission_name, mission_link = self.parser.stats.missions_stats.parse_top_mission_stat(
+            mission_index, squads=True, players=True
+            )
+            formatted_stat = self.parser.stats.stat_formatter.format_stat_row(stat)
+            rows = formatted_stat.strip().split("\n")
 
-        stat, mission_name, mission_link = self.parser.stats.missions_stats.parse_top_mission_stat(
-          mission_index, squads=True, players=True
-        )
-        formatted_stat = self.parser.stats.stat_formatter.format_stat_row(stat)
-        rows = formatted_stat.strip().split("\n")
+            for i in range(len(rows) - 1):
+                try:
+                    if i > 9:
+                        rows.insert(i, "")
+                        rows.insert(i, "*Top Squads*:") 
+                        rows.insert(i, "")
+                        break
+                except IndexError:
+                    continue
 
-        for i in range(len(rows) - 1):
-            try:
-                if i > 9:
-                    rows.insert(i, "")
-                    rows.insert(i, "*Top Squads*:") 
-                    rows.insert(i, "")
-                    break
-            except IndexError:
-                continue
-
-        formatted_stat = "\n".join(rows)
+            formatted_stat = "\n".join(rows)
 
 
-        self.bot.send_message(
-            message.chat.id,
-            f"*Топ игроков и отрядов на миссии* [{mission_name}]({mission_link})\n\n*Top Players:*\n\n{formatted_stat}", parse_mode="Markdown"
-        )
-
+            self.bot.edit_message_text(
+                f"*Топ игроков и отрядов на миссии* [{mission_name}]({mission_link})\n\n*Top Players:*\n\n{formatted_stat}", parse_mode="Markdown", chat_id = message.chat.id, message_id = msg.message_id
+            )
+            self.bot.edit_message_reply_markup(chat_id = message.chat.id, message_id = msg.message_id, reply_markup = self.custom_markups.top_mission_markup())
+        except Exception as e:
+            self.custom_makups.get_error_markup(message.chat.id, 'Ошибка во время получения статистики по миссии')
+            self.l.error(f"[ERROR] while handling mission stats {mission_name}: {e}")
 
     # === fixed dates ===
     def missions(self, message):

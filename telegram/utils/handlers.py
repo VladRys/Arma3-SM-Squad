@@ -8,13 +8,16 @@ from telegram.commands.admin import AdminPanel
 from core.config import *
 
 from telegram.utils.keyboards import CustomInlineKeyboards
+from telegram.utils.donate import Donate
 
 from logs.setup_logs import setup_logger, unload_error_logs
+
 
 class Handlers():
     def __init__(self, bot, database):
         self.bot = bot
         self.db = database
+        self.donate = Donate(self.bot)
         self.bot.callback_query_handler(func=lambda call: True)(self.callback_query)
         
         self.l = setup_logger()
@@ -43,6 +46,10 @@ class Handlers():
                 y += 2
 
             self.bot.send_message(call.message.chat.id, text, parse_mode="Markdown")
+
+        # === Stats ===
+        if call.data == "top_mission_squad_stat":
+            self.donate.send_invoice_message(call.message)
 
     
         # === Admin callbacks ===
