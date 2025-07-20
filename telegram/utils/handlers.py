@@ -49,8 +49,10 @@ class Handlers():
 
         # === Stats ===
         if call.data == "top_mission_squad_stat":
-            self.donate.send_invoice_message(call.message)
-
+            try:
+                self.donate.send_invoice_message(call.from_user.id)
+            except Exception:
+                self.bot.answer_callback_query(call.id, text="Бот не может отправить сообщение тебе в лс, нажми старт в боте.", show_alert=True)
     
         # === Admin callbacks ===
         if call.data == "update_parse_link":

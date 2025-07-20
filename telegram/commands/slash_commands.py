@@ -30,11 +30,13 @@ class SlashCommands():
 
         commands = [
             t.BotCommand("start", "Начать работу с ботом"),
+            t.BotCommand("help", "Доступные команды"),
             t.BotCommand("missions", "Актуальные миссии"),
             t.BotCommand("slots", "Актулальные слоты"),
             t.BotCommand("admin", "Админ панель"),
             t.BotCommand("donate", "Кинуть копейку на хост"),
             t.BotCommand("mission_stat", "Топ игроков и отрядов на последней миссии"),
+            t.BotCommand("logs", "Просмотреть логи"),
         ]
 
         self.bot.set_my_commands(commands)
@@ -46,6 +48,7 @@ class SlashCommands():
         self.bot.message_handler(commands=["mission_stat"])(self.top_mission_stat)
         self.bot.message_handler(commands=["donate"])(self.donate_pls)
 
+        self.bot.message_handler(commands=["help"])(self.help)
 
         self.bot.message_handler(commands=["logs"])(self.logs)
     
@@ -63,6 +66,15 @@ class SlashCommands():
     def donate_pls(self, message):
         self.donate.send_invoice_message(message)
         
+    def help(self, message):
+        self.bot.send_message(message.chat.id, 
+"""
+/missions - Отображение предстоящих миссий на основе расписания TVT
+/slots - Отображение наших слотов на предстоящих миссиях
+/mission_stat - Стата топ игроков по последней миссии. Команда поддерживает индекс миссии -1 -2 -3, (позапрошлая, позапозапоршлая и т.д.) до -9
+/missions_stat -1 - Топ стата на позапрошлой миссии
+/donate - Закинуть копейку на хост 
+""")
 
     # === Top Mission Stat ===
     def top_mission_stat(self, message):

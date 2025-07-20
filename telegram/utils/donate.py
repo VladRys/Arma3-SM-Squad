@@ -29,8 +29,8 @@ class Donate:
         return response.json()
 
 
-    def send_invoice_message(self, message):
+    def send_invoice_message(self, user_id):
         invoice = self.create_invoice(1)
         markup = t.InlineKeyboardMarkup(row_width=1)
         markup.add(t.InlineKeyboardButton(text='Ссылка', url=invoice['result']['bot_invoice_url']))
-        self.bot.send_message(message.chat.id, 'Донат на хост и разработку бота ❤️‍🔥', parse_mode='Markdown', reply_markup = markup)        
+        self.bot.send_message(user_id, 'Донат на хост и разработку ❤️‍🔥', parse_mode='Markdown', reply_markup = markup)        

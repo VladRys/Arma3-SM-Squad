@@ -52,7 +52,8 @@ class MissionDownloader:
 class StatMissionsParser:
     def __init__(self, mission_downloader: MissionDownloader):
         self.mission_downloader = mission_downloader
-  
+        self.logs = setup_logger()
+        
     def parse_top_mission_stat(self, mission_index: int = 0, squads: bool = False, players: bool = False) -> list:
         
         missions_urls = self.mission_downloader.get_missions()
@@ -81,6 +82,13 @@ class StatMissionsParser:
 
             except IndexError:
                 break
+            
+        if not result:
+            self.logs.info("Mission was parsed not properly")
+        else:
+            self.logs.info("[+++] Mission was parsed properly!") 
+           
+            
         return result, mission_name, url
 
 class StatFormatter:
