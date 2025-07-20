@@ -180,6 +180,5 @@ database/slots.json
 
 
 core/.env
-parser/stat_parser.py
-
+parser/ocap_missions/mission.html
 

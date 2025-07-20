@@ -6,7 +6,10 @@ load_dotenv()
 TEST_MODE = True
 MODE = "TEST" if TEST_MODE else "PROD"
 
+# === Parser ===
 TVT_DATES = ["Четверг, 20:00 МСК", "Пятница, 20:00 МСК", "Суббота, 16:00 МСК", "Суббота, 20:00 МСК"]
+STAT_SITE_URL = "https://stats.red-bear.ru/" 
+ALL_SQUADS = ["смерш", "rmc", "vrg", "re", "stels", "tf", "tera", "rdo", "lg", "13th", "7th", "520th", "stv", "jw", "un", "ca", "delta", "ural", "synd", "DW", "NT", "Гивай", "AGG"]
 
 # === Parsing ===
 STAT_SITE_URL = "https://stats.red-bear.ru/"
@@ -18,6 +21,8 @@ DB_FILE_PATH = os.getenv('DB_FILE_PATH')
 # === Telegram ===
 TOKEN_TELEGAM = os.getenv('TELEGRAM_TOKEN')
 TEST_TOKEN_TELEGRAM = os.getenv('TELEGRAM_TEST_TOKEN')
+
+TEST_CRYPTOBOT_TOKEN = os.getenv('TEST_CRYPTO_BOT_TOKEN')
 
 MAIN_TOKEN_TELEGRAM = TEST_TOKEN_TELEGRAM if TEST_MODE else TOKEN_TELEGAM
 

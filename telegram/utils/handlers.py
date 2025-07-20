@@ -7,14 +7,17 @@ from telebot import types as t
 from telegram.commands.admin import AdminPanel
 from core.config import *
 
-# from telegram.utils.keyboards import CustomInlineKeyboards
+from telegram.utils.keyboards import CustomInlineKeyboards
+from telegram.utils.donate import Donate
 
 from logs.setup_logs import setup_logger, unload_error_logs
+
 
 class Handlers():
     def __init__(self, bot, database):
         self.bot = bot
         self.db = database
+        self.donate = Donate(self.bot)
         self.bot.callback_query_handler(func=lambda call: True)(self.callback_query)
         
         self.l = setup_logger()
@@ -45,6 +48,12 @@ class Handlers():
 
             self.bot.send_message(call.message.chat.id, text, parse_mode="Markdown")
 
+        # === Stats ===
+        if call.data == "top_mission_squad_stat":
+            try:
+                self.donate.send_invoice_message(call.from_user.id)
+            except Exception:
+                self.bot.answer_callback_query(call.id, text="Бот не может отправить сообщение тебе в лс, нажми старт в боте.", show_alert=True)
     
         # === Admin callbacks ===
         if call.data == "update_parse_link":

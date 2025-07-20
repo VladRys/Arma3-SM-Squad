@@ -6,7 +6,7 @@ from core.config import *
 from database.db import Database
 from database.slots import SlotStorage
 
-from parser.parser import Parser, SiteParser, StatParser, StatMissionsParser, StatFormatter, MissionDownloader
+from parser.parser import Parser, SiteParser, StatParser, StatMissionsParser, StatFormatter
 
 import random
 
@@ -14,7 +14,7 @@ class Commands(commands.Cog):
     def __init__(self, bot):
         self.bot=bot
         self.l=setup_logger()
-        self.parser = Parser(SiteParser, StatParser, StatMissionsParser, StatFormatter, MissionDownloader)
+        self.parser = Parser(SiteParser, StatParser, StatMissionsParser, StatFormatter)
         self.db = Database(DB_FILE_PATH)
         self.slots = SlotStorage()
         

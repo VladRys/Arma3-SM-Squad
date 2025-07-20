@@ -1,53 +1,67 @@
 import requests
 from bs4 import BeautifulSoup
+import requests
 from urllib.parse import urlparse, parse_qs
-
-import re
+from selenium import webdriver
+from collections import defaultdict
 
 from logs.setup_logs import setup_logger
 
 from core.config import STAT_SITE_URL
 
+
 class MissionDownloader:
     def __init__(self):
         self.logs = setup_logger()
         
-    def get_ocap_missions(self) -> list:
+
+    def download_mission(self, url: str):
+        headers = {
+       "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+        }
+
+        response = requests.get(url, headers=headers)
+
+
+        driver = webdriver.Chrome()
+        driver.get(url)
+
+        filename = StatFormatter.get_mission_name_by_url(url)
+        html = driver.page_source
+        with open("parser/ocap_missions/mission.html", "w", encoding="utf-8") as f:
+            f.write(html)
+            driver.quit()
+            self.logs.info(f"Mission downloaded and saved as {filename}")
+            return filename
+
+
+    def get_missions(self):
         response = requests.get(STAT_SITE_URL)
         html =  BeautifulSoup(response.content, "html.parser")
 
         tables = html.find_all("tbody")
-        mission_links = ["https://stats.red-bear.ru/" + a_tag["href"] for table in tables for a_tag in table.find_all(class_ = "replay_id")]
-        
-        print(mission_links[-10:0])
-        
+        mission_links = [
+            "https://stats.red-bear.ru/" + a_tag["href"]
+            for table in tables
+            for a_tag in table.find_all(class_="replay_id")
+        ][-10:]
+
+        print(mission_links)
+
         return mission_links
-    
-    def update_missions(self):
-        links = self.get_ocap_missions()
-        # for link in links:
-        #     self.download_mission(link)
-    
-    def download_mission(self, url: str):
-        response = requests.get(url)
-
-        if response.status_code == 200:
-            mission_name = StatFormatter.get_mission_name_by_url(url)
-
-            with open(f"parser/ocap_missions/{mission_name}.html", "w", encoding="utf-8") as f:
-                f.write(response.text)
-                self.logs.info(f"[PARSER] Миссия {mission_name} успешно загружена!")
-                
-        else:
-            print("Ошибка:", response.status_code)
-            self.logs.error("[PARSER] Ошибка при загрузке миссии")
 
 class StatMissionsParser:
     def __init__(self, mission_downloader: MissionDownloader):
-        self.mission_downloader = mission_downloader()
+        self.mission_downloader = mission_downloader
+        self.logs = setup_logger()
+        
+    def parse_top_mission_stat(self, mission_index: int = 0, squads: bool = False, players: bool = False) -> list:
+        
+        missions_urls = self.mission_downloader.get_missions()
+        url = missions_urls[-1 + mission_index]
+        mission_name = self.mission_downloader.download_mission(url)
 
-    def parse_top_mission_stat(self, mission_name, squads: bool = False, players: bool = False) -> list:
-        with open(f"parser/ocap_missions/{mission_name}.html", "r", encoding="utf-8") as f:
+        with open(f"parser/ocap_missions/mission.html", "r", encoding="utf-8") as f:
             soup = BeautifulSoup(f, "html.parser")
 
         rows = soup.find_all("tr", class_=["odd", "even"])
@@ -60,30 +74,42 @@ class StatMissionsParser:
                 score = cells[1].get_text(strip=True)
                 faction = cells[2].get_text(strip=True)
                 
-                if players and name.startswith("["):
-                    result.append((name, score, faction))
-                elif squads and not name.startswith("["):
-                    result.append((name, score, faction))
+                # if players and name.startswith("["):
+                #     result.append((name, score, faction))
+                # elif squads and not name.startswith("[") and "*ARMA*" not in name:
+                #     result.append((name, score, faction))
+                result.append((name, score, faction))
+
 
             except IndexError:
                 break
+            
+        if not result:
+            self.logs.info("Mission was parsed not properly")
+        else:
+            self.logs.info("[+++] Mission was parsed properly!") 
+           
+            
+        return result, mission_name, url
 
-        return result
-
-class StatFormatter():
+class StatFormatter:
     def side_formatter(self, text):
-        if text == "GUER": faction = "🟩"
-        elif text == "WEST": faction = "🟦"
-        elif text == "EAST": faction = "🟥"
+        if text == "GUER": text = "🟢"
+        elif text == "WEST": text = "🔵"
+        elif text == "EAST": text = "🔴"
+        else:
+            text = "❓"
         
-        return faction
+        return text
     
     def format_stat_row(self, data: list) -> str:
         formatted_text = ""
         for item in data:
             name, score, faction = item
             faction = self.side_formatter(faction)
-           
+            if "no_side" in name:
+                name = name.replace("no_side", "").strip()
+            
             formatted_text += f"{faction} | {name} - {score}\n"
         return formatted_text
     
@@ -106,6 +132,5 @@ class StatFormatter():
 
 class StatParser:
     def __init__(self, missions_stats: StatMissionsParser, stat_formatter: StatFormatter):
-        self.missions_stats = missions_stats(MissionDownloader)
+        self.missions_stats = missions_stats(MissionDownloader())
         self.stat_formatter = stat_formatter()
-        
