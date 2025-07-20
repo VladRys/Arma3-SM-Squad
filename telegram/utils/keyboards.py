@@ -12,6 +12,12 @@ class CustomInlineKeyboards():
     
     def top_mission_markup(self):
         top_mission_markup = t.InlineKeyboardMarkup(row_width=1)
-        top_mission_markup.add(t.InlineKeyboardButton(text='📈 Статистика отряда', callback_data='top_mission_squad_stat'))
+        top_mission_markup.add(t.InlineKeyboardButton(text='📈 Статистика отряда', callback_data=f'top_mission_squadstat'))
         
         return top_mission_markup
+
+    def hide_squad_markup(self, msg):
+        hide_squad_markup = t.InlineKeyboardMarkup(row_width=1)
+        hide_squad_markup.add(t.InlineKeyboardButton(text='❌ Скрыть стату отряда', callback_data=f'hide_squad_stat_{msg}'))
+        
+        return hide_squad_markup

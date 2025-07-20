@@ -18,16 +18,16 @@ class Handlers():
         self.bot = bot
         self.db = database
         self.donate = Donate(self.bot)
+        self.custom_markups = CustomInlineKeyboards(self.bot)
         self.bot.callback_query_handler(func=lambda call: True)(self.callback_query)
         
         self.l = setup_logger()
 
-        self.parser = Parser(SiteParser, StatParser, StatMissionsParser, StatFormatter, MissionDownloader)
+        self.parser = Parser(SiteParser, StatParser, StatMissionsParser, StatFormatter)
         
 
         self.user_state = {}
 
-        # self.custom_makups = CustomInlineKeyboards(self.bot)
 
         self.bot.message_handler(func=lambda m: self.user_state.get(m.from_user.id) == 'waiting_json', content_types=['document'])(self.handle_json)
         
@@ -49,12 +49,49 @@ class Handlers():
             self.bot.send_message(call.message.chat.id, text, parse_mode="Markdown")
 
         # === Stats ===
-        if call.data == "top_mission_squad_stat":
-            try:
-                self.donate.send_invoice_message(call.from_user.id)
-            except Exception:
-                self.bot.answer_callback_query(call.id, text="Бот не может отправить сообщение тебе в лс, нажми старт в боте.", show_alert=True)
-    
+        if call.data == "top_mission_squadstat":
+            with open("parser/ocap_missions/active_mission.txt", "r", encoding="utf-8") as f:
+                mission_link = f.read().strip()
+
+            msg = self.bot.send_message(
+                chat_id=call.message.chat.id,
+                text="Получение статистики отряда...",
+                parse_mode="Markdown"
+            )
+            stat = self.parser.stats.missions_stats.smersh_top_mission_stat(mission_link)
+            
+            self.bot.edit_message_text(
+                chat_id=msg.chat.id,
+                message_id=msg.message_id,
+                text=f"\n\nSMERSH STAT\n\n{stat}"
+            )
+
+            text = f"{call.message.text}\n\n*SMERSH STAT*\n\n{stat}"
+
+            # Клавиатура отряда
+            self.bot.edit_message_reply_markup(
+                chat_id=msg.chat.id,
+                message_id=msg.message_id,
+                reply_markup=self.custom_markups.hide_squad_markup(call.message.message_id)
+            )
+
+            # Клавиатура общей статы
+            self.bot.edit_message_reply_markup(
+                chat_id=call.message.chat.id,
+                message_id=call.message.message_id,
+                reply_markup=None
+            )
+
+        if call.data.startswith("hide_squad_stat_"):
+            self.bot.delete_message(
+                chat_id=call.message.chat.id,
+                message_id=call.message.message_id,
+            )
+
+            msg_id = call.data.split("_")[-1]
+            self.bot.edit_message_reply_markup(chat_id = call.message.chat.id, message_id = msg_id, reply_markup = self.custom_markups.top_mission_markup()) 
+            
+
         # === Admin callbacks ===
         if call.data == "update_parse_link":
             self.admin_panel.get_link(call.message)

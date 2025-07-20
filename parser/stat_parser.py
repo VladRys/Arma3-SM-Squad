@@ -1,8 +1,11 @@
 import requests
+import time
+import re
 from bs4 import BeautifulSoup
-import requests
 from urllib.parse import urlparse, parse_qs
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
 from collections import defaultdict
 
 from logs.setup_logs import setup_logger
@@ -54,7 +57,56 @@ class StatMissionsParser:
     def __init__(self, mission_downloader: MissionDownloader):
         self.mission_downloader = mission_downloader
         self.logs = setup_logger()
-        
+
+    def smersh_top_mission_stat(self, url) -> list:
+        options = Options()
+        options.add_argument("--headless")
+        driver = webdriver.Chrome(options=options)
+
+        driver.get(url)
+        time.sleep(1)
+
+
+        smersh_stats = set()
+
+        while True:
+            soup = BeautifulSoup(driver.page_source, "html.parser")
+            table = soup.find("table", {"id": "stats-table"})
+            if table:
+                rows = table.find_all("tr")
+                for row in rows:
+                    cols = row.find_all("td")
+                    if len(cols) >= 5:
+                        player = cols[0].get_text(strip=True)
+                        frags = cols[1].get_text(strip=True)
+                        tk = cols[4].get_text(strip=True)
+
+                        if "[СМЕРШ]" in player:
+                            frags = int(frags) if frags.isdigit() else 0
+                            tk = int(tk) if tk.isdigit() else 0
+                            smersh_stats.add((player, frags, tk))
+
+            next_btn = driver.find_element(By.ID, "stats-table_next")
+            if "disabled" in next_btn.get_attribute("class"):
+                break
+            driver.execute_script("arguments[0].click();", next_btn)
+            time.sleep(0.5)
+
+        driver.quit()
+
+        lines = []
+        for name, frags, tk in sorted(smersh_stats, key=lambda x: -x[1]):
+            if "[СМЕРШ]" in name:
+                name = f"🪖 | {name.replace("[СМЕРШ]", "").strip()}"
+
+            line = f"{name} - {frags} фрагов"
+            if tk > 0:
+                line += f", {tk} грех(а)"
+            lines.append(line)
+
+        print(lines)
+        return "\n".join(lines)
+    
     def parse_top_mission_stat(self, mission_index: int = 0, squads: bool = False, players: bool = False) -> list:
         
         missions_urls = self.mission_downloader.get_missions()
@@ -74,10 +126,6 @@ class StatMissionsParser:
                 score = cells[1].get_text(strip=True)
                 faction = cells[2].get_text(strip=True)
                 
-                # if players and name.startswith("["):
-                #     result.append((name, score, faction))
-                # elif squads and not name.startswith("[") and "*ARMA*" not in name:
-                #     result.append((name, score, faction))
                 result.append((name, score, faction))
 
 
@@ -88,7 +136,7 @@ class StatMissionsParser:
             self.logs.info("Mission was parsed not properly")
         else:
             self.logs.info("[+++] Mission was parsed properly!") 
-           
+        
             
         return result, mission_name, url
 
@@ -129,6 +177,11 @@ class StatFormatter:
 
         mission_name = part.replace(".json", "")
         return mission_name
+
+
+    def escape_markdown(self, text):
+        escape_chars = r'\_*[]()~`>#+-=|{}.!'
+        return re.sub(rf'([{re.escape(escape_chars)}])', r'\\\1', text)
 
 class StatParser:
     def __init__(self, missions_stats: StatMissionsParser, stat_formatter: StatFormatter):

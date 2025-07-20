@@ -94,6 +94,10 @@ class SlashCommands():
             stat, mission_name, mission_link = self.parser.stats.missions_stats.parse_top_mission_stat(
             mission_index, squads=True, players=True
             )
+
+            with open("parser/ocap_missions/active_mission.txt", "w", encoding="utf-8") as f:
+                f.write(mission_link)
+
             formatted_stat = self.parser.stats.stat_formatter.format_stat_row(stat)
             rows = formatted_stat.strip().split("\n")
 
