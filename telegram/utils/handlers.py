@@ -7,7 +7,7 @@ from telebot import types as t
 from telegram.commands.admin import AdminPanel
 from core.config import *
 
-from utils.keyboards import CustomInlineKeyboards
+from telegram.utils.keyboards import CustomInlineKeyboards
 
 from logs.setup_logs import setup_logger, unload_error_logs
 

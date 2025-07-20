@@ -15,3 +15,10 @@ class AgeVerifException(CustomException):
     def log(self):
         self.l.info(f"[AgeVerifException] {self.user} {self.message}")
             
+class MissionIndexException(CustomException):
+    def __init__(self, message: str, mission_index: int):
+        super().__init__(message)
+        self.mission_index = mission_index
+    
+    def log(self):
+        self.l.info(f"[MissionIndexException] {self.mission_index} {self.message}")

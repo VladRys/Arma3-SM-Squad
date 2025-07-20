@@ -1,12 +1,14 @@
+
 from telebot import types as t
 from database.db import Database
 from database.slots import SlotStorage
 
 from core.config import  ADMINS, DB_FILE_PATH, TVT_DATES
+from core.exceptions import MissionIndexException
 from telegram.commands.admin import AdminPanel
 from telegram.utils.keyboards import CustomInlineKeyboards
 
-from parser.parser import Parser, SiteParser, StatParser, StatMissionsParser
+from parser.parser import Parser, SiteParser, StatParser, StatMissionsParser, StatFormatter
 
 from logs.setup_logs import unload_logs, unload_error_logs
 
@@ -17,7 +19,7 @@ class SlashCommands():
         
         self.admin_panel = AdminPanel(self.bot)
 
-        self.parser = Parser(SiteParser, StatParser, StatMissionsParser)
+        self.parser = Parser(SiteParser, StatParser, StatMissionsParser, StatFormatter)
         
         self.slots = SlotStorage()
 
@@ -54,16 +56,26 @@ class SlashCommands():
 
     # === Top Mission Stat ===
     def top_mission_stat(self, message):
-        stat = self.parser.missions_stats.parse_top_mission_stat(
-            "RBC_200_Whisky_War_v5", squads=True, players=True
+        if len(message.text.split()) > 1:
+            try:
+                mission_index = int(message.text.split()[1])
+                if mission_index > 0 and mission_index < -10:
+                    self.bot.send_message(message.chat.id, "Номер миссии должен быть меньше 0 и больше -10") 
+                    raise MissionIndexException("Mission index must be less than 0", mission_index)
+            except ValueError:
+                raise MissionIndexException("Mission index must be an integer", 0)
+        else:
+            mission_index = 0
+
+        stat, mission_name, mission_link = self.parser.stats.missions_stats.parse_top_mission_stat(
+          mission_index, squads=True, players=True
         )
-        formatted_stat = self.parser.missions_stats.format_stat_row(stat)
+        formatted_stat = self.parser.stats.stat_formatter.format_stat_row(stat)
         rows = formatted_stat.strip().split("\n")
 
-        for i, row in enumerate(rows):
+        for i in range(len(rows) - 1):
             try:
-                name_part = row.split("|")[1].strip().split(" - ")[0]
-                if not name_part.startswith("["):
+                if i > 9:
                     rows.insert(i, "")
                     rows.insert(i, "*Top Squads*:") 
                     rows.insert(i, "")
@@ -73,10 +85,10 @@ class SlashCommands():
 
         formatted_stat = "\n".join(rows)
 
+
         self.bot.send_message(
             message.chat.id,
-            f"*Топ игроков и отрядов по миссии RBC_200_Whisky_War_v5:*\n\n*Top Players:*\n\n{formatted_stat}",
-            parse_mode="Markdown"
+            f"*Топ игроков и отрядов на миссии* [{mission_name}]({mission_link})\n\n*Top Players:*\n\n{formatted_stat}", parse_mode="Markdown"
         )
 
 
