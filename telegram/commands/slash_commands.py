@@ -142,34 +142,9 @@ class SlashCommands():
         )
     
     def show_slots(self, message):
-        slots = self.slots.load_data()
-
-        message_text = " "
-        mode = 1
-        day = 1
-        game = 1 
-        for i, d in enumerate(TVT_DATES):
-            if i == 1:
-                m = mode + 1
-                d_ = day
-            elif i == 3:
-                m = mode + 1
-                d_ = day + 1
-            elif i == 2:
-                m = mode
-                d_ = day + 1
-            else:
-                m = mode
-                d_ = day
-
-            g1 = slots[f"TVT {m}"][f"Day {d_}"][f"Game {game}"]
-            g2 = slots[f"TVT {m}"][f"Day {d_}"][f"Game {game+1}"]
-            message_text += f"{d}\n|\n1 ИГРА: {g1}\n2 ИГРА: {g2}\n|\n"
-
-        self.bot.send_message(message.chat.id, message_text)
+        self.bot.send_message(message.chat.id, self.slots.get_slots_text())
 
     def logs(self, message):
         unload_logs(self.bot, message)
         unload_error_logs(self.bot, message)
-        
         

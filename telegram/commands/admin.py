@@ -23,15 +23,9 @@ class AdminPanel():
             return False
 
     def admin_menu(self,message):
-        admin_markup = t.InlineKeyboardMarkup(row_width=2)
-
-        admin_markup.add(t.InlineKeyboardButton("Обновить ссылку на расписание", callback_data="update_parse_link"))
-        admin_markup.add(t.InlineKeyboardButton("Обновить слоты (JSON)", callback_data="update_slots_json"))
-        admin_markup.add(t.InlineKeyboardButton("Обновить миссии для статы", callback_data="update_ocap_missions"))
-        admin_markup.add(t.InlineKeyboardButton(text='🔨 Выгрузить логи', callback_data='unload_error_logs'))
         user_id = message.from_user.id
         if self.is_admin(user_id, message):
-            self.bot.send_message(message.chat.id, "Админ панель", reply_markup = admin_markup)
+            self.bot.send_message(message.chat.id, "Админ панель", reply_markup = self.custom_markups.admin_markup())
 
 
     def get_link(self, message):

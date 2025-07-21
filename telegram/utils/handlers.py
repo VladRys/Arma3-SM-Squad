@@ -10,7 +10,7 @@ from core.config import *
 from telegram.utils.keyboards import CustomInlineKeyboards
 from telegram.utils.donate import Donate
 
-from logs.setup_logs import setup_logger, unload_error_logs
+from logs.setup_logs import setup_logger, unload_error_logs, unload_logs
 
 
 class Handlers():
@@ -34,8 +34,10 @@ class Handlers():
         self.admin_panel = AdminPanel(self.bot)
 
     def callback_query(self, call):
-        if call.data == "unload_error_logs":
+        if call.data == "unload_logs":
             unload_error_logs(self.bot, call.message)
+            unload_logs(self.bot, call.message)
+            
 
         if call.data == "download_missions":
             parsed_data = self.parser.parse_missions()
@@ -100,13 +102,8 @@ class Handlers():
             self.user_state[call.from_user.id] = 'waiting_json'
             msg = self.bot.send_message(call.message.chat.id, 'Отправь json слотов', parse_mode='Markdown')
 
-        if call.data == "update_ocap_missions":
-            self.parser.stats.missions_stats.mission_downloader.update_missions()            
-
         self.bot.answer_callback_query(call.id)
 
-
-    # === Should has admin condition ===
     def handle_json(self, message):
         if message.from_user.id not in ADMINS:
             file_info = self.bot.get_file(message.document.file_id)

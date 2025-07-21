@@ -21,3 +21,12 @@ class CustomInlineKeyboards():
         hide_squad_markup.add(t.InlineKeyboardButton(text='❌ Скрыть стату отряда', callback_data=f'hide_squad_stat_{msg}'))
         
         return hide_squad_markup
+    
+    def admin_markup(self):
+        admin_markup = t.InlineKeyboardMarkup(row_width=1)
+
+        admin_markup.add(t.InlineKeyboardButton("Обновить ссылку на расписание", callback_data="update_parse_link"))
+        admin_markup.add(t.InlineKeyboardButton("Обновить слоты (JSON)", callback_data="update_slots_json"))
+        admin_markup.add(t.InlineKeyboardButton(text='🔨 Выгрузить логи', callback_data='unload_error_logs'))
+        
+        return admin_markup
