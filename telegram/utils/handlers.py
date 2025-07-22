@@ -28,6 +28,8 @@ class Handlers():
 
         self.user_state = {}
 
+        self.last_mission_link = None
+        self.last_mission_stat = None
 
         self.bot.message_handler(func=lambda m: self.user_state.get(m.from_user.id) == 'waiting_json', content_types=['document'])(self.handle_json)
         
@@ -55,12 +57,19 @@ class Handlers():
             with open("parser/ocap_missions/active_mission.txt", "r", encoding="utf-8") as f:
                 mission_link = f.read().strip()
 
+            if self.last_mission_link == mission_link and self.last_mission_stat is not None:
+                stat = self.last_mission_stat
+            else:
+                stat = self.parser.stats.missions_stats.smersh_top_mission_stat(mission_link)
+                self.last_mission_link = mission_link
+                self.last_mission_stat = stat
+
             msg = self.bot.send_message(
                 chat_id=call.message.chat.id,
                 text="Получение статистики отряда...",
                 parse_mode="Markdown"
             )
-            stat = self.parser.stats.missions_stats.smersh_top_mission_stat(mission_link)
+            # stat = self.parser.stats.missions_stats.smersh_top_mission_stat(mission_link)
             
             self.bot.edit_message_text(
                 chat_id=msg.chat.id,
