@@ -1,0 +1,22 @@
+[project]
+name = "arma3-sm-squad"
+version = "0.1.0"
+description = "Personal project of the virtual international squad SMERSH A3."
+authors = [
+    {name = "Vladislav R",email = "rysichvlad0910@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "bs4 (==0.0.2)",
+    "disnake (==2.9.3)",
+    "python-dotenv (==1.0.1)",
+    "selenium (==4.34.2)",
+    "pytelegrambotapi (==4.26.0)",
+    "requests (>=2.32.4,<3.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
