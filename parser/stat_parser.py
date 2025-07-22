@@ -12,11 +12,22 @@ from logs.setup_logs import setup_logger
 
 from core.config import STAT_SITE_URL
 
-
-class MissionDownloader:
+class SeleniumDriver:
     def __init__(self):
+        self.driver = webdriver.Chrome()
+        self.options = Options()
+        self.options.add_argument("--headless")
+        self.driver = webdriver.Chrome(options=self.options)
+
         self.logs = setup_logger()
-        
+
+
+    def close(self):
+        self.driver.quit()
+
+class MissionDownloader(SeleniumDriver):
+    def __init__(self):
+        super().__init__()
 
     def download_mission(self, url: str):
         headers = {
@@ -26,14 +37,12 @@ class MissionDownloader:
         response = requests.get(url, headers=headers)
 
 
-        driver = webdriver.Chrome()
-        driver.get(url)
+        self.driver.get(url)
 
         filename = StatFormatter.get_mission_name_by_url(url)
-        html = driver.page_source
+        html = self.driver.page_source
         with open("parser/ocap_missions/mission.html", "w", encoding="utf-8") as f:
             f.write(html)
-            driver.quit()
             self.logs.info(f"Mission downloaded and saved as {filename}")
             return filename
 
@@ -56,21 +65,20 @@ class MissionDownloader:
 class StatMissionsParser:
     def __init__(self, mission_downloader: MissionDownloader):
         self.mission_downloader = mission_downloader
+        self.driver = self.mission_downloader.driver
+
         self.logs = setup_logger()
 
-    def smersh_top_mission_stat(self, url) -> list:
-        options = Options()
-        options.add_argument("--headless")
-        driver = webdriver.Chrome(options=options)
 
-        driver.get(url)
+    def smersh_top_mission_stat(self, url) -> list:
+        self.driver.get(url)
         time.sleep(1)
 
 
         smersh_stats = set()
 
         while True:
-            soup = BeautifulSoup(driver.page_source, "html.parser")
+            soup = BeautifulSoup(self.driver.page_source, "html.parser")
             table = soup.find("table", {"id": "stats-table"})
             if table:
                 rows = table.find_all("tr")
@@ -86,13 +94,11 @@ class StatMissionsParser:
                             tk = int(tk) if tk.isdigit() else 0
                             smersh_stats.add((player, frags, tk))
 
-            next_btn = driver.find_element(By.ID, "stats-table_next")
+            next_btn = self.driver.find_element(By.ID, "stats-table_next")
             if "disabled" in next_btn.get_attribute("class"):
                 break
-            driver.execute_script("arguments[0].click();", next_btn)
+            self.driver.execute_script("arguments[0].click();", next_btn)
             time.sleep(0.5)
-
-        driver.quit()
 
         lines = []
         for name, frags, tk in sorted(smersh_stats, key=lambda x: -x[1]):
