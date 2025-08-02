@@ -6,6 +6,9 @@ from urllib.parse import urlparse, parse_qs
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
 from collections import defaultdict
 
 from logs.setup_logs import setup_logger
@@ -14,7 +17,6 @@ from core.config import STAT_SITE_URL
 
 class SeleniumDriver:
     def __init__(self):
-        self.driver = webdriver.Chrome()
         self.options = Options()
         self.options.add_argument("--headless")
         self.driver = webdriver.Chrome(options=self.options)
@@ -47,7 +49,7 @@ class MissionDownloader(SeleniumDriver):
             return filename
 
 
-    def get_missions(self):
+    def get_missions(self, index: int) -> list:
         response = requests.get(STAT_SITE_URL)
         html =  BeautifulSoup(response.content, "html.parser")
 
@@ -56,7 +58,7 @@ class MissionDownloader(SeleniumDriver):
             "https://stats.red-bear.ru/" + a_tag["href"]
             for table in tables
             for a_tag in table.find_all(class_="replay_id")
-        ][-10:]
+        ][index]
 
         print(mission_links)
 
@@ -72,7 +74,9 @@ class StatMissionsParser:
 
     def smersh_top_mission_stat(self, url) -> list:
         self.driver.get(url)
-        time.sleep(1)
+        WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, "stats-table"))
+        )
 
 
         smersh_stats = set()
@@ -115,12 +119,12 @@ class StatMissionsParser:
     
     def parse_top_mission_stat(self, mission_index: int = 0, squads: bool = False, players: bool = False) -> list:
         
-        missions_urls = self.mission_downloader.get_missions()
-        url = missions_urls[-1 + mission_index]
-        mission_name = self.mission_downloader.download_mission(url)
+        missions_urls = self.mission_downloader.get_missions(-1 + mission_index)
+        # mission_name = self.mission_downloader.download_mission(missions_urls)
+        self.driver.get(missions_urls) 
 
         with open(f"parser/ocap_missions/mission.html", "r", encoding="utf-8") as f:
-            soup = BeautifulSoup(f, "html.parser")
+            soup = BeautifulSoup(self.driver.page_source, "html.parser")
 
         rows = soup.find_all("tr", class_=["odd", "even"])
 
@@ -144,7 +148,7 @@ class StatMissionsParser:
             self.logs.info("[+++] Mission was parsed properly!") 
         
             
-        return result, mission_name, url
+        return result, StatFormatter.get_mission_name_by_url(missions_urls), missions_urls
 
 class StatFormatter:
     def side_formatter(self, text):

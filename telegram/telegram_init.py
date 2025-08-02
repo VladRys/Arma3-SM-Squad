@@ -38,4 +38,3 @@ class MainTelegram():
         except Exception as e:
             print("[ERROR]", e)
             self.logs.error(f"[ERROR] while start bot: {e}")
-            

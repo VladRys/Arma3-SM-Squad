@@ -11,7 +11,7 @@ from telegram.utils.donate import Donate
 
 from parser.parser import Parser, SiteParser, StatParser, StatMissionsParser, StatFormatter
 
-from logs.setup_logs import unload_logs, unload_error_logs
+from logs.setup_logs import unload_logs, unload_error_logs, setup_logger
 
 class SlashCommands():
     def __init__(self, bot):
@@ -27,7 +27,8 @@ class SlashCommands():
         self.donate = Donate(self.bot)
 
         self.custom_markups = CustomInlineKeyboards(self.bot)
-
+        self.l = setup_logger()
+        
         commands = [
             t.BotCommand("start", "Начать работу с ботом"),
             t.BotCommand("help", "Доступные команды"),
@@ -105,7 +106,7 @@ class SlashCommands():
                 try:
                     if i > 9:
                         rows.insert(i, "")
-                        rows.insert(i, "*Top Squads*:") 
+                        rows.insert(i, "Top Squads:") 
                         rows.insert(i, "")
                         break
                 except IndexError:
@@ -115,11 +116,11 @@ class SlashCommands():
 
 
             self.bot.edit_message_text(
-                f"*Топ игроков и отрядов на миссии* [{mission_name}]({mission_link})\n\n*Top Players:*\n\n{formatted_stat}", parse_mode="Markdown", chat_id = message.chat.id, message_id = msg.message_id
+                f"Топ игроков и отрядов на миссии {mission_name}\n\nTop Players:\n\n{formatted_stat}", chat_id = message.chat.id, message_id = msg.message_id
             )
             self.bot.edit_message_reply_markup(chat_id = message.chat.id, message_id = msg.message_id, reply_markup = self.custom_markups.top_mission_markup())
         except Exception as e:
-            self.custom_makups.get_error_markup(message.chat.id, 'Ошибка во время получения статистики по миссии')
+            self.custom_markups.get_error_markup(message.chat.id, 'Ошибка во время получения статистики по миссии')
             self.l.error(f"[ERROR] while handling mission stats {mission_name}: {e}")
 
     # === fixed dates ===
