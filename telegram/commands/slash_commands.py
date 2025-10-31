@@ -130,10 +130,7 @@ class SlashCommands():
         button = t.InlineKeyboardButton("Скачать Миссии", callback_data="download_missions")
         markup.add(button)
 
-        tvt1 = f"*RED BEAR TVT 1*\n{TVT_DATES[0]}\n{parsed_data['TVT1_MISSIONS'][0]}\n\n{TVT_DATES[2]}\n{parsed_data['TVT1_MISSIONS'][1]}\n\n"
-        tvt2 = f"*RED BEAR TVT 2*\n{TVT_DATES[1]}\n{parsed_data['TVT2_MISSIONS'][0]}\n\n{TVT_DATES[3]}\n{parsed_data['TVT2_MISSIONS'][1]}"
-
-        text = tvt1 + tvt2
+        text = f"*RED BEAR TVT 1*\n{TVT_DATES[0]}\n{parsed_data['MISSIONS'][0]}\n\n{TVT_DATES[1]}\n{parsed_data['MISSIONS'][1]}\n\n{TVT_DATES[2]}\n{parsed_data['MISSIONS'][2]}"
 
         self.bot.send_message(
             message.chat.id,

@@ -7,7 +7,7 @@ TEST_MODE = True
 MODE = "TEST" if TEST_MODE else "PROD"
 
 # === Parser ===
-TVT_DATES = ["Четверг, 20:00 МСК", "Пятница, 20:00 МСК", "Суббота, 16:00 МСК", "Суббота, 20:00 МСК"]
+TVT_DATES = ["Четверг, 20:00 МСК", "Пятница, 20:00 МСК", "Суббота, 20:00 МСК"]
 STAT_SITE_URL = "https://stats.red-bear.ru/" 
 ALL_SQUADS = ["смерш", "rmc", "vrg", "re", "stels", "tf", "tera", "rdo", "lg", "13th", "7th", "520th", "stv", "jw", "un", "ca", "delta", "ural", "synd", "DW", "NT", "Гивай", "AGG"]
 

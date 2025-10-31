@@ -11,6 +11,8 @@ class SiteParser():
     def __init__(self):
         self.logs = setup_logger()
 
+        print(self.parse_missions())
+
 
     def fetch_html(self, url):
         response = requests.get(url)
@@ -28,16 +30,14 @@ class SiteParser():
         mission_links = [a_tag["href"] for table in tables for a_tag in table.find_all("a", href=True)]
 
         tvt_titles = [dates[0].text, dates[27].text]  # TVT Titles
-        tvt_dates = [dates[1].text, dates[12].text, dates[27].text, dates[38].text]  # TVT Dates
+        # tvt_dates = [dates[1].text, dates[12].text, dates[38].text]  # TVT Dates
 
-        tvt1_missions = self.clean_text([tables[0].text, tables[1].text])
-        tvt2_missions = self.clean_text([tables[2].text, tables[3].text])
+        missions = self.clean_text([tables[0].text, tables[1].text, tables[2].text])
 
         return {
             "TVT_TITLES": tvt_titles,
             # "TVT_DATES": tvt_dates,
-            "TVT1_MISSIONS": tvt1_missions,
-            "TVT2_MISSIONS": tvt2_missions,
+            "MISSIONS": missions,
             "MISSION_LINKS": mission_links
         }
 
