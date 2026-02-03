@@ -8,6 +8,9 @@ from logs.setup_logs import setup_logger
 
 class MainTelegram():
     def __init__(self):
+        if not config.MAIN_TOKEN_TELEGRAM:
+            raise ValueError("MAIN_TOKEN_TELEGRAM is not configured")
+        
         self.bot = telebot.TeleBot(config.MAIN_TOKEN_TELEGRAM)
 
         self.logs = setup_logger()
@@ -38,4 +41,3 @@ class MainTelegram():
         except Exception as e:
             print("[ERROR]", e)
             self.logs.error(f"[ERROR] while start bot: {e}")
-            
