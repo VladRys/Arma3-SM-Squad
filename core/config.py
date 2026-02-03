@@ -6,27 +6,45 @@ load_dotenv()
 TEST_MODE = True
 MODE = "TEST" if TEST_MODE else "PROD"
 
-# === Parser ===
-TVT_DATES = ["Четверг, 20:00 МСК", "Пятница, 20:00 МСК", "Суббота, 20:00 МСК"]
-STAT_SITE_URL = "https://stats.red-bear.ru/" 
-ALL_SQUADS = ["смерш", "rmc", "vrg", "re", "stels", "tf", "tera", "rdo", "lg", "13th", "7th", "520th", "stv", "jw", "un", "ca", "delta", "ural", "synd", "DW", "NT", "Гивай", "AGG"]
-
 # === Parsing ===
-STAT_SITE_URL = "https://stats.red-bear.ru/"
 
-# === Paths ===
-SLOTS_FILE_PATH = os.getenv('SLOTS_FILE_PATH')
-DB_FILE_PATH = os.getenv('DB_FILE_PATH')
+SOLID_GAMES_URL = "https://sg.zone/"
+FEED_ITEM_PARSE_LIMIT = 10
+ALLOWED_TITLES = (
+    "Анонс игр",
+    "СЕРЬЕЗНЫЕ МЕЙСЫ",
+    "Games announcement"
+)
+
+SIDE_EMOJI = {
+    "red": "🔴",
+    "blue": "🔵",
+    "yellow": "🟡",
+    "green": "🟢",
+    }
+
+SELECTORS = {
+    "feed_item": ".feed-item",
+    "section_header_title": ".section-header-title",
+    "tabs_container": ".row.tabs",
+    "tab_button": ".btn-tab",
+    "mission_block": ".feed-padding",
+    "mission_desc_item": ".mission-desc-item",
+    "preview_spoiler": ".preview-spoiler-body",
+    "desktop_tab_name": ".desktop-item",
+    "map": ".sg-map",
+    "time": ".sg-clock, .sg-cloud",
+    "users": ".sg-users",
+    "equipment": ".sg-car"
+}
 
 # === Telegram ===
-TOKEN_TELEGAM = os.getenv('TELEGRAM_TOKEN')
+TOKEN_TELEGAM = os.getenv('TELEGRAM_TOKEN') or ""
 TEST_TOKEN_TELEGRAM = os.getenv('TELEGRAM_TEST_TOKEN')
-
-TEST_CRYPTOBOT_TOKEN = os.getenv('TEST_CRYPTO_BOT_TOKEN')
 
 MAIN_TOKEN_TELEGRAM = TEST_TOKEN_TELEGRAM if TEST_MODE else TOKEN_TELEGAM
 
-ADMIN_IDS = os.getenv('ADMIN_IDS')
+ADMIN_IDS = os.getenv('ADMIN_IDS') or ""
 ADMINS = ADMIN_IDS.split()
 
 # === Discord ===

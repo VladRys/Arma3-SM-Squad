@@ -174,11 +174,4 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
-
-database/db.db
-database/slots.json
-
-
-core/.env
-parser/ocap_missions/mission.html
-
+*.env
