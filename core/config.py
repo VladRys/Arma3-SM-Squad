@@ -6,7 +6,6 @@ load_dotenv()
 TEST_MODE = True
 MODE = "TEST" if TEST_MODE else "PROD"
 
-TVT_DATES = ["Четверг, 20:00 МСК", "Пятница, 20:00 МСК", "Суббота, 16:00 МСК", "Суббота, 20:00 МСК"]
 
 # === Paths ===
 SLOTS_FILE_PATH = os.getenv('SLOTS_FILE_PATH')

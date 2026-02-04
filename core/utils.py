@@ -1,6 +1,5 @@
 from core.config import DB_FILE_PATH
 from logs.setup_logs import setup_logger
-from database.db import Database
 from telegram import *
 
 class Utils():
@@ -10,7 +9,6 @@ class Utils():
     # === Loading All Telegram Extensions ===
     def load_ext(self, bot):
         try:
-            db = Database(DB_FILE_PATH)
             commands = SlashCommands(bot)
             handlers = Handlers(bot, db)
             admin = AdminPanel(bot)
