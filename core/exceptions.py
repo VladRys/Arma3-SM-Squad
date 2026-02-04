@@ -13,5 +13,7 @@ class AgeVerifException(CustomException):
     def __init__(self, message: str, user):
         super().__init__(message)
         self.user = user
+        self.message = message
+        
     def log(self):
         self.l.info(f"[AgeVerifException] {self.user} {self.message}")

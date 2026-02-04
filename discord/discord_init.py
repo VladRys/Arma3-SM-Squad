@@ -21,7 +21,7 @@ class MainDiscord:
 
     def main(self):
         print("[+++] Discord")
-        initial_extensions = ["discord.commands.slash_commands",
+        initial_extensions = ["discord.cogs.slash_commands",
                               "discord.events.event_handler",
                               "discord.tickets.ticket",]
 
