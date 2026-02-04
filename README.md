@@ -37,6 +37,7 @@ The bots collect, process, and publish data to Discord and Telegram in real time
 - Selenium / BeautifulSoup — data parsing
 
 **🚀 Purpose**
+
 The project is designed to:
 
 - improve clan coordination;
